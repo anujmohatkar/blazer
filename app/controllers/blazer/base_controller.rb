@@ -73,6 +73,13 @@ module Blazer
         params[:cohort_period] ||= "week"
       end
 
+      # combos method
+      def add_combo_analysis_vars
+        @bind_vars << "combo_period" unless @bind_vars.include?("combo_period")
+        @smart_vars["combo_period"] = ["day", "week", "month"]
+        params[:combo_period] ||= "week"
+      end
+
       def parse_smart_variables(var, data_source)
         smart_var_data_source =
           ([data_source] + Array(data_source.settings["inherit_smart_settings"]).map { |ds| Blazer.data_sources[ds] }).find { |ds| ds.smart_variables[var] }

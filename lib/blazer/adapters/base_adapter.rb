@@ -51,6 +51,14 @@ module Blazer
         # optional
       end
 
+      def supports_combo_analysis?
+        false # optional
+      end
+
+      def combo_analysis_statement(statement, period:, days:)
+        # optional
+      end
+
       protected
 
       def settings

@@ -43,5 +43,9 @@ module Blazer
     def cohort_analysis?
       /\/\*\s*cohort analysis\s*\*\//i.match?(statement)
     end
+
+    def combo_analysis?
+      /\/\*\s*combo analysis\s*\*\//i.match?(statement)
+    end
   end
 end

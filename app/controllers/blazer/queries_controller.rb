@@ -76,6 +76,8 @@ module Blazer
       Blazer.transform_statement.call(data_source, @statement) if Blazer.transform_statement
 
       add_cohort_analysis_vars if @query.cohort_analysis?
+      add_combo_analysis_vars if @query.combo_analysis?
+
     end
 
     def edit
@@ -85,6 +87,7 @@ module Blazer
       @statement = params[:statement]
       # before process_vars
       @cohort_analysis = Query.new(statement: @statement).cohort_analysis?
+      @combo_analysis = Query.new(statement: @statement).combo_analysis?
       data_source = params[:data_source]
       process_vars(@statement, data_source)
       @only_chart = params[:only_chart]
@@ -94,6 +97,7 @@ module Blazer
       @data_source = Blazer.data_sources[data_source]
 
       run_cohort_analysis if @cohort_analysis
+      run_combo_analysis if @combo_analysis
 
       # ensure viewable
       if !(@query || Query.new(data_source: @data_source.id)).viewable?(blazer_user)
@@ -276,6 +280,8 @@ module Blazer
         end
 
         render_cohort_analysis if @cohort_analysis && !@error
+        render_combo_analysis if @combo_analysis && !@error
+
 
         respond_to do |format|
           format.html do
@@ -460,5 +466,108 @@ module Blazer
           @rows = rows
         end
       end
+
+      # Combo charts methods 
+      def run_combo_analysis
+        unless @data_source.supports_combo_analysis?
+          @combo_error = "This data source does not support combo analysis"
+        end
+
+        @show_combo_rows = !params[:query_id] || @combo_error
+
+        unless @show_combo_rows
+          @statement = combo_analysis_statement(@data_source, @statement)
+        end
+      end
+
+      def combo_analysis_statement(data_source, statement)
+        @combo_period = params["combo_period"] || "week"
+        @combo_period = "week" unless ["day", "week", "month"].include?(@combo_period)
+
+        # for now
+        @conversion_period = @combo_period
+        @combo_days =
+          case @combo_period
+          when "day"
+            1
+          when "week"
+            7
+          when "month"
+            30
+          end
+
+        data_source.combo_analysis_statement(statement, period: @combo_period, days: @combo_days)
+      end
+
+      def render_combo_analysis
+        if @show_combo_rows
+          @combo_analysis = false
+
+          @row_limit = 1000
+
+          # check results
+          unless @combo_error
+            # check names
+            expected_columns = ["user_id", "conversion_time"]
+            missing_columns = expected_columns - @result.columns
+            if missing_columns.any?
+              @combo_error = "Expected user_id and conversion_time columns"
+            end
+
+            # check types (user_id can be any type)
+            unless @combo_error
+              column_types = @result.columns.zip(@result.column_types).to_h
+
+              if !column_types["combo_time"].in?(["time", nil])
+                @combo_error = "combo_time must be time column"
+              elsif !column_types["conversion_time"].in?(["time", nil])
+                @combo_error = "conversion_time must be time column"
+              end
+            end
+          end
+        else
+          @today = Blazer.time_zone.today
+          @min_combo_date, @max_combo_date = @result.rows.map { |r| r[0] }.minmax
+          @buckets = {}
+          @rows.each do |r|
+            @buckets[[r[0], r[1]]] = r[2]
+          end
+
+          @combo_dates = []
+          current_date = @max_combo_date
+          while current_date && current_date >= @min_combo_date
+            @combo_dates << current_date
+            current_date =
+              case @combo_period
+              when "day"
+                current_date - 1
+              when "week"
+                current_date - 7
+              else
+                current_date.prev_month
+              end
+          end
+
+          num_cols = @combo_dates.size
+          @columns = ["Combo", "Users"] + num_cols.times.map { |i| "#{@conversion_period.titleize} #{i + 1}" }
+          rows = []
+          date_format = @combo_period == "month" ? "%b %Y" : "%b %-e, %Y"
+          @combo_dates.each do |date|
+            row = [date.strftime(date_format), @buckets[[date, 0]] || 0]
+
+            num_cols.times do |i|
+              if @today >= date + (@combo_days * i)
+                row << (@buckets[[date, i + 1]] || 0)
+              end
+            end
+
+            rows << row
+          end
+          @rows = rows
+        end
+      end
+
+  
+    # @private end 
   end
 end

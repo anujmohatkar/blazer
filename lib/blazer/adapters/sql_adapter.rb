@@ -183,6 +183,68 @@ module Blazer
         connection_model.send(:sanitize_sql_array, params)
       end
 
+      # combo analysis
+      def supports_combo_analysis?
+        postgresql? || mysql?
+      end
+
+      # TODO treat date columns as already in time zone
+      def combo_analysis_statement(statement, period:, days:)
+        raise "Combo analysis not supported" unless supports_combo_analysis?
+
+        combo_column = statement =~ /\bcombo_time\b/ ? "combo_time" : "conversion_time"
+        tzname = Blazer.time_zone.tzinfo.name
+
+        if mysql?
+          time_sql = "CONVERT_TZ(combos.combo_time, '+00:00', ?)"
+          case period
+          when "day"
+            date_sql = "CAST(DATE_FORMAT(#{time_sql}, '%Y-%m-%d') AS DATE)"
+            date_params = [tzname]
+          when "week"
+            date_sql = "CAST(DATE_FORMAT(#{time_sql} - INTERVAL ((5 + DAYOFWEEK(#{time_sql})) % 7) DAY, '%Y-%m-%d') AS DATE)"
+            date_params = [tzname, tzname]
+          else
+            date_sql = "CAST(DATE_FORMAT(#{time_sql}, '%Y-%m-01') AS DATE)"
+            date_params = [tzname]
+          end
+          bucket_sql = "CAST(CEIL(TIMESTAMPDIFF(SECOND, combos.combo_time, query.conversion_time) / ?) AS SIGNED)"
+        else
+          date_sql = "date_trunc(?, combos.combo_time::timestamptz AT TIME ZONE ?)::date"
+          date_params = [period, tzname]
+          bucket_sql = "CEIL(EXTRACT(EPOCH FROM query.conversion_time - combos.combo_time) / ?)::int"
+        end
+
+        # WITH not an optimization fence in Postgres 12+
+        statement = <<~SQL
+          WITH query AS (
+            #{statement}
+          ),
+          combos AS (
+            SELECT user_id, MIN(#{combo_column}) AS combo_time FROM query
+            WHERE user_id IS NOT NULL AND #{combo_column} IS NOT NULL
+            GROUP BY 1
+          )
+          SELECT
+            #{date_sql} AS period,
+            0 AS bucket,
+            COUNT(DISTINCT combos.user_id)
+          FROM combos GROUP BY 1
+          UNION ALL
+          SELECT
+            #{date_sql} AS period,
+            #{bucket_sql} AS bucket,
+            COUNT(DISTINCT query.user_id)
+          FROM combos INNER JOIN query ON query.user_id = combos.user_id
+          WHERE query.conversion_time IS NOT NULL
+          AND query.conversion_time >= combos.combo_time
+          #{combo_column == "conversion_time" ? "AND query.conversion_time != combos.combo_time" : ""}
+          GROUP BY 1, 2
+        SQL
+        params = [statement] + date_params + date_params + [days.to_i * 86400]
+        connection_model.send(:sanitize_sql_array, params)
+      end
+
       protected
 
       def select_all(statement, params = [])
