@@ -12,6 +12,12 @@
   <% else %>
     <%= render partial: "cohorts" %>
   <% end %>
+<% elsif @combo_analysis %>
+  <% if @combo_error %>
+    <div class="alert alert-info"><%= @combo_error %></div>
+  <% else %>
+    <%= render partial: "combos" %>
+  <% end %>
 <% else %>
   <% unless @only_chart %>
     <%= render partial: "caching" %>
@@ -40,6 +46,9 @@
   <% end %>
   <% if @cohort_error %>
     <div class="alert alert-info"><%= @cohort_error %></div>
+  <% end %>
+  <% if @combo_error %>
+    <div class="alert alert-info"><%= @combo_error %></div>
   <% end %>
   <% if @rows.any? %>
     <% values = @rows.first %>

@@ -183,18 +183,19 @@ module Blazer
         connection_model.send(:sanitize_sql_array, params)
       end
 
-      # combo analysis
+      # Combo methods //subject to changes
+      
       def supports_combo_analysis?
         postgresql? || mysql?
       end
-
+    
       # TODO treat date columns as already in time zone
       def combo_analysis_statement(statement, period:, days:)
         raise "Combo analysis not supported" unless supports_combo_analysis?
-
+    
         combo_column = statement =~ /\bcombo_time\b/ ? "combo_time" : "conversion_time"
         tzname = Blazer.time_zone.tzinfo.name
-
+    
         if mysql?
           time_sql = "CONVERT_TZ(combos.combo_time, '+00:00', ?)"
           case period
@@ -214,7 +215,7 @@ module Blazer
           date_params = [period, tzname]
           bucket_sql = "CEIL(EXTRACT(EPOCH FROM query.conversion_time - combos.combo_time) / ?)::int"
         end
-
+    
         # WITH not an optimization fence in Postgres 12+
         statement = <<~SQL
           WITH query AS (
@@ -244,7 +245,7 @@ module Blazer
         params = [statement] + date_params + date_params + [days.to_i * 86400]
         connection_model.send(:sanitize_sql_array, params)
       end
-
+    
       protected
 
       def select_all(statement, params = [])

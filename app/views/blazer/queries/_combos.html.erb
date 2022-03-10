@@ -1,7 +1,7 @@
 <% unless @only_chart %>
   <%= render partial: "caching" %>
   <p class="text-muted" style="margin-bottom: 10px;">
-    <%= pluralize(@rows.size, "cohort") %>
+    <%= pluralize(@rows.size, "combo") %>
   </p>
 <% end %>
 <% if @rows.any? %>
@@ -9,7 +9,7 @@
     <table class="table results-table">
       <thead>
         <tr>
-          <th style="min-width: 100px;">Cohort</th>
+          <th style="min-width: 100px;">Combo</th>
           <% 12.times do |i| %>
             <th style="width: 7.5%; text-align: right;"><%= @conversion_period.titleize %> <%= i + 1 %></th>
           <% end %>
@@ -44,5 +44,6 @@
     </table>
   </div>
 <% elsif @only_chart %>
-  <p class="text-muted">No cohorts</p>
+  <p class="text-muted">No combos</p>
 <% end %>
+  

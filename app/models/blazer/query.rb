@@ -37,6 +37,7 @@ module Blazer
     def variables
       variables = Blazer.extract_vars(statement)
       variables += ["cohort_period"] if cohort_analysis?
+      variables += ["combo_period"] if combo_analysis?
       variables
     end
 
