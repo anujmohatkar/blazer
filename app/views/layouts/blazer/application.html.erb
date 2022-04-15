@@ -14,9 +14,13 @@
       <%= stylesheet_link_tag "https://api.mapbox.com/mapbox.js/v3.3.1/mapbox.css", integrity: "sha384-vxzdEt+wZRPNQbhChjmiaFMLWg86IGuq1NGDehJHsD2mphYkxXll/eSs16WWi6Dq", crossorigin: "anonymous" %>
       <%= javascript_include_tag "https://api.mapbox.com/mapbox.js/v3.3.1/mapbox.js", integrity: "sha384-CTBEiDLiZJ8gkAQ3fYGoeiRp81/ecNiBkGz11jXFALOZ6++rbnqmdo6OImkmr1MO", crossorigin: "anonymous" %>
     <% end %>
+
+    <script src="https://code.highcharts.com/highcharts.js"></script>
     <%= csrf_meta_tags %>
   </head>
   <body>
+
+
     <div class="container">
       <%= yield %>
     </div>

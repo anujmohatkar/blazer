@@ -17,6 +17,7 @@
       </thead>
       <tbody>
         <% @rows.each do |row| %>
+        <% p row %>
           <tr>
             <td>
               <%= row[0] %>
@@ -46,4 +47,3 @@
 <% elsif @only_chart %>
   <p class="text-muted">No combos</p>
 <% end %>
-  
