@@ -1,0 +1,139 @@
+<% if @columns.length >= 3 %>
+   <div id = "hcontainer" style = "width: 550px; height: 400px; margin: 0 auto"></div>
+   
+       <script language = "JavaScript">
+         $(document).ready(function() {  
+            var chart = {
+               zoomType: 'xy'
+            };
+            var subtitle = {
+               text: 'Source: WorldClimate.com'   
+            };
+            var title = {
+               text: 'Average Monthly Temperature and Rainfall in Tokyo'   
+            };
+            var xAxis = {
+               categories: <%= @query.hc_x_axis(@rows) %>,
+               crosshair: true
+            };
+            var yAxis = [
+               { // Primary yAxis
+                  title: {
+                     text: '<%= @columns[1] %>',
+                     style: {
+                        color: Highcharts.getOptions().colors[1]
+                     }
+                  }
+               },
+               { // Secondary yAxis
+                  title: {
+                     text: '<%= @columns[2] %>',
+                     style: {
+                        color: Highcharts.getOptions().colors[0]
+                     }
+                  },
+                  opposite: true
+               }
+            ];
+            var tooltip = {
+               shared: true
+            };
+            var legend = {
+               layout: 'vertical',
+               align: 'left',
+               x: 120,
+               verticalAlign: 'top',
+               y: 100,
+               floating: true,
+               
+               backgroundColor: (
+                  Highcharts.theme && Highcharts.theme.legendBackgroundColor)
+                  || '#FFFFFF'
+            };
+            var series = [
+               {
+                  name: "<%= @columns[1] %>",
+                  type: 'column',
+                  yAxis: 1,
+                  <% arr = Array.new %>
+                  <% hc_row_array.each do |row| %>
+                     <% arr << row[1] %>
+                  <% end %>
+                  data: <%= arr.to_s %>
+               }, 
+               {
+                  name: "<%= @columns[2] %>",
+                  type: 'spline',
+                  <% arr = Array.new %>
+                  <% hc_row_array.each do |row| %>
+                     <% arr << row[2] %>
+                  <% end %>
+                  data: <%= arr.to_s %>
+               }
+            ];     
+      
+            var json = {};   
+            json.chart = chart;   
+            json.title = title;
+            json.subtitle = subtitle;      
+            json.xAxis = xAxis;
+            json.yAxis = yAxis;
+            json.tooltip = tooltip;  
+            json.legend = legend;  
+            json.series = series;
+            $('#container').highcharts(json);  
+         });
+      </script>
+<% else %>
+   <p>No data to display.</p>
+<% end %>
+<!-- testing code -->
+<br />
+<% if @columns.length >= 3 %>
+   var xAxis = {
+                  categories: <%= hc_x_axis %>,
+                  crosshair: true
+               };
+   <br />
+   var yAxis = [
+                  { // Primary yAxis
+                     title: {
+                        text: <%= @columns[1] %>,
+                        style: {
+                           color: Highcharts.getOptions().colors[1]
+                        }
+                     }
+                  }, 
+                  { // Secondary yAxis
+                     title: {
+                        text: <%= @columns[2] %>,
+                        style: {
+                           color: Highcharts.getOptions().colors[0]
+                        }
+                     },
+                     opposite: true
+                  }
+               ];
+   <br />
+  var series = [
+               {
+                  name: "<%= @columns[1] %>",
+                  type: 'column',
+                  yAxis: 1,
+                  data: [
+                     <% hc_row_array.each do |row| %>
+                        <%= row[1] %>,
+                     <% end %>
+                  ]
+               }, 
+               {
+                  name: "<%= @columns[2] %>",
+                  type: 'spline',
+                  data: [
+                     <% hc_row_array.each do |row| %>
+                        <%= row[2] %>,
+                     <% end %>
+                  ]
+               }
+            ];
+<% end %>

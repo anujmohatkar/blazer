@@ -74,11 +74,11 @@ module Blazer
       end
 
       # combos method
-      def add_combo_analysis_vars
-        @bind_vars << "combo_period" unless @bind_vars.include?("combo_period")
-        @smart_vars["combo_period"] = ["day", "week", "month"]
-        params[:combo_period] ||= "week"
-      end
+      #def add_combo_analysis_vars
+      #  @bind_vars << "combo_period" unless @bind_vars.include?("combo_period")
+      #  @smart_vars["combo_period"] = ["day", "week", "month"]
+      #  params[:combo_period] ||= "week"
+      #end
 
       def parse_smart_variables(var, data_source)
         smart_var_data_source =

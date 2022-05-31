@@ -20,6 +20,7 @@
     <%= render partial: "combos" %>
   <% end %>
 <% else %>
+  <!--
   <% unless @only_chart %>
     <%= render partial: "caching" %>
     <p class="text-muted" style="margin-bottom: 10px;">
@@ -41,7 +42,7 @@
         <%= link_to "Forecast", query_path(@query, {forecast: "t"}.merge(variable_params(@query))) %>
       <% end %>
     </p>
-  <% end %>
+  <% end %> -->
   <% if @forecast_error %>
     <div class="alert alert-danger"><%= @forecast_error %></div>
   <% end %>

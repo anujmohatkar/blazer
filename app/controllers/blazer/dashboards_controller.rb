@@ -41,7 +41,7 @@ module Blazer
       end
 
       add_cohort_analysis_vars if @queries.any?(&:cohort_analysis?)
-      add_combo_analysis_vars if @queries.any?(&:combo_analysis?)
+      #add_combo_analysis_vars if @queries.any?(&:combo_analysis?)
     end
 
     def edit

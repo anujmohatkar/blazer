@@ -1,0 +1,57 @@
+<div id = "container" style = "width: 550px; height: 400px; margin: 0 auto"></div>
+      <script language = "JavaScript">
+         $(document).ready(function() {  
+            var chart = {
+               zoomType: 'xy'
+            };
+            var subtitle = {
+               text: 'Source: WorldClimate.com'   
+            };
+            var title = {
+               text: 'Average Monthly Weather Data for Tokyo'   
+            };
+            var xAxis = {
+               categories: <%= @query.hc_x_axis(@rows) %>,
+               crosshair: true
+            };
+            var yAxis = <%= @query.hc_y_axis(@columns) %>;
+            var tooltip = {
+               shared: true
+            };
+            var legend = {
+               layout: 'vertical',
+               align: 'left',
+               x: 120,
+               verticalAlign: 'top',
+               y: 100,
+               floating: true,
+               
+               backgroundColor: (
+                  Highcharts.theme && Highcharts.theme.legendBackgroundColor)
+                  || '#FFFFFF'
+            };
+            var series = <%= @query.hc_y_axis_data_x(@query.hc_x_axis(@rows), @rows, @columns) %>;   
+      
+            var json = {};   
+            json.chart = chart;   
+            json.title = title;
+            json.subtitle = subtitle;      
+            json.xAxis = xAxis;
+            json.yAxis = yAxis;
+            json.tooltip = tooltip;  
+            json.legend = legend;  
+            json.series = series;
+            $('#container').highcharts(json);  
+         });
+      </script>
+<br />
+var xAxis categories: <%= @query.hc_x_axis(@rows) %>
+<br />
+var yAxis = <%= @query.hc_y_axis(@columns) %>;
+<br />
+var series = <%= @query.hc_y_axis_data_mx(@query.hc_x_axis(@rows), @rows, @columns) %>
+<br />
+<%= @columns %>
+<br />
+<%= @rows %>
+
