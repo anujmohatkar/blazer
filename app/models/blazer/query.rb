@@ -229,5 +229,197 @@ module Blazer
       @hc_y_axis_data = hcyl.to_json
     end
 
+    # box plot methods
+    def hcbp_raw_arrays(rows, columns)
+      hcbp = []
+      (columns.length).times do |i|
+        hcbp << rows.map { |row| row[i].to_f }
+      end
+      @hcbp_raw_arrays = hcbp
+    end
+
+    def hcbp_data_arrays(raw_arrays)
+      hcbp = []
+      raw_arrays.each do |f|
+        p "----------------------------"
+        x = []
+        q1_2 = []
+        q2_3 = []
+        i = f.sort
+        p i
+        x << i.first
+        p "lower bound: #{i.first}" 
+        if i.length % 2 == 0
+          m2 = i[(i.length / 2)]
+          m1 = i[(i.length / 2) - 1]
+          median_index = ((i.length / 2) -1)
+          q1_median = (m1 + m2) / 2
+        else
+          q1_median = i[(i.length / 2 - 1)]
+          median_index = (i.length / 2 - 1)
+        end
+        p "----------------------------"
+        p "median index: #{median_index}"
+        p "Median : #{q1_median}"
+        i[0..(median_index-1)].each do |x|
+          q1_2 << x
+        end
+        i[(median_index+1)..(i.length-1)].each do |x|
+          q2_3 << x
+        end
+        p "----------------------------"
+        p "Q1 ot Q2 : #{q1_2}"
+        p "----------------------------"
+        p "Q2 ot Q3 : #{q2_3}"
+        p "----------------------------"
+        if q1_2.length % 2 == 0
+          qm2 = q1_2[(q1_2.length / 2)]
+          qm1 = q1_2[(q1_2.length / 2) - 1]
+          q1 = (qm1 + qm2) / 2
+        else
+          q1 = q1_2[(q1_2.length / 2) - 1]
+        end
+        x << q1
+        x << q1_median
+        if q2_3.length % 2 == 0
+          qm3 = q2_3[(q2_3.length / 2)]
+          qm4 = q2_3[(q2_3.length / 2) - 1]
+          q3 = (qm3 + qm4) / 2
+        else
+          q3 = q2_3[(q2_3.length / 2) - 1]
+        end
+        x << q3
+        x << i.last
+        p x
+        p "----------------------------"
+        hcbp << x
+      end
+      @hcbp_data_arrays = hcbp
+    end
+  
+    # bubble chart methods
+    # hcbc = highcharts bubble chart
+    # bubble chart method to get data for plotting bubble chart
+    def hcbc_data(rows, columns)
+      hcbc_array = []
+      rows.each do |row|
+        hcbc_item = {
+          'x' => row[1].to_f,
+          'y' => row[2].to_f,
+          'z' => row[3].to_f,
+          'name' => row[0][0..1].to_s,
+          "#{columns[0]}" => row[0].to_s
+        }
+        hcbc_array << hcbc_item
+      end
+      @hcbc_data = hcbc_array.to_json
+    end
+
+    # bubble chart method for x-axis reference line value
+    def hcbc_x_axis(rows)
+      @hcbc_x_axis = ((rows[1].sort.last + rows[1].sort.first) / 2).round(2)
+    end
+    
+     # bubble chart method for y-axis reference line value
+    def hcbc_y_axis(rows)
+      @hcbc_x_axis = ((rows[2].sort.last + rows[2].sort.first) / 2).round(2)
+    end
+
+    # methods for linked bubble heatmap (lbh)
+
+    # method to test if the query has enough columns to plot linked bubble heatmap
+    def lbh_test(columns)
+      if (columns.length % 2 == 1) && columns.length >= 5
+        @lbh_test = true
+      else 
+        @lbh_test = false
+      end
+    end
+
+    # method to get data for plotting linked bubble heatmap
+    def lbh_data(rows, columns)
+      lbh_array = [] # array to store data for plotting linked bubble heatmap
+
+      # code to get data for plotting the bubbles
+      hcbc_array = []
+      rows.each.with_index do |row, i|
+        j = 1
+        ((columns.length - 1) / 2).times do
+          hcbc_item = {
+            'x' => row[j].to_f,
+            'y' => row[j+1].to_f,
+            'name' => row[0][0..1].to_s,
+            "#{columns[0]}" => row[0].to_s
+          }
+          j += 2
+          hcbc_array << hcbc_item
+        end
+      end
+      bubble_hash = {}
+      bubble_hash[:data] = hcbc_array
+      lbh_array << bubble_hash
+
+      # code to get data for plotting the lines connecting the bubbles
+      rows.each.with_index do |row , i|
+        lbh_hash_item = Hash.new
+        j = 1
+        line_arraw = []
+        ((columns.length - 1) / 2).times do
+          lbh_item = {
+            'x' => rows[i][j].to_f,
+            'y' => rows[i][(j + 1)].to_f  
+          }
+
+          line_arraw << lbh_item
+          j += 2
+        end
+        lbh_hash_item[:type] = 'line'
+        lbh_hash_item['data'] = line_arraw
+        lbh_array << lbh_hash_item
+
+      end
+      # associating the array in json format for highcharts
+      @lbh_data = lbh_array.to_json
+    end
+
+    # method of linked bubble heatmap for x-axis reference line value
+    def lbh_x_axis(rows)
+      #middle value = ((max value in array + min value in the array) / 2).round(2)
+      x_axis_all_values = []
+      index = 0
+      (rows.length / 2).times do
+        rows[index].each do |x|
+          x_axis_all_values << x
+        end
+        index += 2
+      end
+      p 'here are all the x-axis values'
+      p x_axis_all_values.min
+      @lbh_x_axis = ((x_axis_all_values.sort.last + x_axis_all_values.sort.first) / 2).round(2)
+    end
+
+    # method of linked bubble heatmap for y-axis reference line value
+    def lbh_y_axis(rows)
+      #@lbh_y_axis = ((rows[2].sort.last + rows[2].sort.first) / 2).round(2)
+      y_axis_all_values = []
+      index = 1
+      (rows.length / 2).times do
+        rows[index].each do |x|
+          y_axis_all_values << x
+        end
+        index += 2
+      end
+      @lbh_y_axis = ((y_axis_all_values.sort.last + y_axis_all_values.sort.first) / 2).round(2)
+    end
+
+    def lbh_raw_data(rows, columns)
+      x = 1
+      array = []
+      (columns.length-1).times do
+        array << rows.map { |row| row[x].to_f }
+        x += 1
+      end
+      @lbh_raw_data = array
+    end
   end
 end

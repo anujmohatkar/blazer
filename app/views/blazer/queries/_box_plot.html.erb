@@ -1,0 +1,10 @@
+<%= @columns %>
+<br />
+<%= @rows %>
+<br />
+<br />
+<br />
+<%= @query.hcbp_raw_arrays(@rows, @columns) %>
+<br />
+<%= @query.hcbp_data_arrays(@query.hcbp_raw_arrays(@rows, @columns)) %>
+ 

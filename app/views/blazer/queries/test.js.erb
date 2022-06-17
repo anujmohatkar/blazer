@@ -1,0 +1,518 @@
+Highcharts.chart('container', {
+
+    chart: {
+        type: 'bubble',
+        plotBorderWidth: 1,
+        zoomType: 'xy',
+        plotBackgroundImage: 'https://i.ibb.co/RBsvr2n/Screenshot-272.png'
+    },
+
+    legend: {
+        enabled: false
+    },
+
+    title: {
+        text: 'Sugar and fat intake per country'
+    },
+
+    subtitle: {
+        text: 'Source: <a href="http://www.euromonitor.com/">Euromonitor</a> and <a href="https://data.oecd.org/">OECD</a>'
+    },
+
+    accessibility: {
+        point: {
+            valueDescriptionFormat: '{index}. {point.name}, fat: {point.x}g, sugar: {point.y}g, obesity: {point.z}%.'
+        }
+    },
+
+    xAxis: {
+        gridLineWidth: 1,
+        title: {
+            text: <%= @columns[1] %>
+        },
+        plotLines: [{
+            color: 'black',
+            width: 2,
+            value: <%= @query.hcbc_x_axis(@query.hcbp_raw_arrays(@rows, @columns)) %>,
+            label: {
+                rotation: 0,
+                y: 15,
+                style: {
+                    fontStyle: 'italic'
+                }
+            },
+            zIndex: 3
+        }]
+    },
+
+    yAxis: {
+        startOnTick: false,
+        endOnTick: false,
+        title: {
+            text: <%= @columns[2] %>
+        },
+        maxPadding: 0.2,
+        plotLines: [{
+            color: 'black',
+            width: 2,
+            value: <%= @query.hcbc_y_axis(@query.hcbp_raw_arrays(@rows, @columns)) %>,
+            label: {
+                align: 'right',
+                style: {
+                    fontStyle: 'italic'
+                }
+            },
+            zIndex: 3
+        }]
+    },
+
+    tooltip: {
+        useHTML: true,
+        headerFormat: '<table>',
+        pointFormat: '<tr><th colspan="2"><h3>{point.title}</h3></th></tr>' +
+            '<tr><th><%= @columns[1] %>:</th><td>{point.x}g</td></tr>' +
+            '<tr><th><%= @columns[2] %></th><td>{point.y}g</td></tr>' +
+            '<tr><th><%= @columns[3] %></th><td>{point.z}%</td></tr>',
+        footerFormat: '</table>',
+        followPointer: true
+    },
+
+    plotOptions: {
+        series: {
+            dataLabels: {
+                enabled: true,
+                format: '{point.name}'
+            }
+        },
+        bubble: {
+            maxSize: 25
+        }
+    },
+
+    series: <%= @query.lbh_data(@rows, @columns) %>
+});
+
+
+
+
+
+
+Highcharts.chart('container', {
+    chart: {
+        height: 600,
+        inverted: true
+    },
+
+    title: {
+        text: 'Highcharts Org Chart'
+    },
+
+    accessibility: {
+        point: {
+            descriptionFormatter: function (point) {
+                var nodeName = point.toNode.name,
+                    nodeId = point.toNode.id,
+                    nodeDesc = nodeName === nodeId ? nodeName : nodeName + ', ' + nodeId,
+                    parentDesc = point.fromNode.id;
+                return point.index + '. ' + nodeDesc + ', reports to ' + parentDesc + '.';
+            }
+        }
+    },
+
+    series: [{
+        type: 'organization',
+        name: 'Highsoft',
+        keys: ['from', 'to'],
+        data: [
+            ['Shareholders', 'Board'],
+            ['Board', 'CEO'],
+            ['CEO', 'CTO'],
+            ['CEO', 'CPO'],
+            ['CEO', 'CSO'],
+            ['CEO', 'HR'],
+            ['CTO', 'Product'],
+            ['CTO', 'Web'],
+            ['CSO', 'Sales'],
+            ['HR', 'Market'],
+            ['CSO', 'Market'],
+            ['HR', 'Market'],
+            ['CTO', 'Market']
+        ],
+        levels: [{
+            level: 0,
+            color: 'silver',
+            dataLabels: {
+                color: 'black'
+            },
+            height: 25
+        }, {
+            level: 1,
+            color: 'silver',
+            dataLabels: {
+                color: 'black'
+            },
+            height: 25
+        }, {
+            level: 2,
+            color: '#980104'
+        }, {
+            level: 4,
+            color: '#359154'
+        }],
+        nodes: [{
+            id: 'Shareholders'
+        }, {
+            id: 'Board'
+        }, {
+            id: 'CEO',
+            title: 'CEO',
+            name: 'Grethe Hjetland',
+            image: 'https://wp-assets.highcharts.com/www-highcharts-com/blog/wp-content/uploads/2020/03/17131126/Highsoft_03862_.jpg'
+        }, {
+            id: 'HR',
+            title: 'HR/CFO',
+            name: 'Anne Jorunn Fjærestad',
+            color: '#007ad0',
+            image: 'https://wp-assets.highcharts.com/www-highcharts-com/blog/wp-content/uploads/2020/03/17131210/Highsoft_04045_.jpg'
+        }, {
+            id: 'CTO',
+            title: 'CTO',
+            name: 'Christer Vasseng',
+            image: 'https://wp-assets.highcharts.com/www-highcharts-com/blog/wp-content/uploads/2020/03/17131120/Highsoft_04074_.jpg'
+        }, {
+            id: 'CPO',
+            title: 'CPO',
+            name: 'Torstein Hønsi',
+            image: 'https://wp-assets.highcharts.com/www-highcharts-com/blog/wp-content/uploads/2020/03/17131213/Highsoft_03998_.jpg'
+        }, {
+            id: 'CSO',
+            title: 'CSO',
+            name: 'Anita Nesse',
+            image: 'https://wp-assets.highcharts.com/www-highcharts-com/blog/wp-content/uploads/2020/03/17131156/Highsoft_03834_.jpg'
+        }, {
+            id: 'Product',
+            name: 'Product developers'
+        }, {
+            id: 'Web',
+            name: 'Web devs, sys admin'
+        }, {
+            id: 'Sales',
+            name: 'Sales team'
+        }, {
+            id: 'Market',
+            name: 'Marketing team',
+            column: 5
+        }],
+        colorByPoint: false,
+        color: '#007ad0',
+        dataLabels: {
+            color: 'white'
+        },
+        borderColor: 'white',
+        nodeWidth: 65
+    }],
+    tooltip: {
+        outside: true
+    },
+    exporting: {
+        allowHTML: true,
+        sourceWidth: 800,
+        sourceHeight: 600
+    }
+
+});
+
+
+
+
+
+Highcharts.chart('container', {
+    chart: {
+        type: 'funnel'
+    },
+    title: {
+        text: 'Sales funnel'
+    },
+    plotOptions: {
+        series: {
+            dataLabels: {
+                enabled: true,
+                format: '<b>{point.name}</b> ({point.y:,.0f})',
+                softConnector: true
+            },
+            center: ['40%', '50%'],
+            neckWidth: '30%',
+            neckHeight: '25%',
+            width: '80%'
+        }
+    },
+    legend: {
+        enabled: false
+    },
+    series: [{
+        name: 'Unique users',
+        data: [
+            ['Website visitssss', 15654],
+            ['Downloads', 4064],
+            ['Requested price list', 1987],
+            ['Invoice sent', 976],
+            ['Finalized', 846]
+        ]
+    }],
+
+    responsive: {
+        rules: [{
+            condition: {
+                maxWidth: 500
+            },
+            chartOptions: {
+                plotOptions: {
+                    series: {
+                        dataLabels: {
+                            inside: true
+                        },
+                        center: ['50%', '50%'],
+                        width: '100%'
+                    }
+                }
+            }
+        }]
+    }
+});
+
+
+
+Highcharts.chart('container', {
+    accessibility: {
+        screenReaderSection: {
+            beforeChartFormat: '<h5>{chartTitle}</h5>' +
+                '<div>{chartSubtitle}</div>' +
+                '<div>{chartLongdesc}</div>' +
+                '<div>{viewTableButton}</div>'
+        }
+    },
+    series: [{
+        type: 'wordcloud',
+        data,
+        name: 'Occurrences'
+    }],
+    title: {
+        text: 'Wordcloud of Lorem Ipsum'
+    }
+});
+
+
+
+
+Highcharts.chart('container', {
+
+    chart: {
+        height: '100%'
+    },
+
+    // Let the center circle be transparent
+    colors: ['transparent'].concat(Highcharts.getOptions().colors),
+
+    title: {
+        text: 'World population 2017'
+    },
+
+    subtitle: {
+        text: 'Source <a href="https://en.wikipedia.org/wiki/List_of_countries_by_population_(United_Nations)">Wikipedia</a>'
+    },
+
+    series: [{
+        type: 'sunburst',
+        data: data,
+        name: 'Root',
+        allowDrillToNode: true,
+        cursor: 'pointer',
+        dataLabels: {
+            format: '{point.name}',
+            filter: {
+                property: 'innerArcLength',
+                operator: '>',
+                value: 16
+            },
+            rotationMode: 'circular'
+        },
+        levels: [{
+            level: 1,
+            levelIsConstant: false,
+            dataLabels: {
+                filter: {
+                    property: 'outerArcLength',
+                    operator: '>',
+                    value: 64
+                }
+            }
+        }, {
+            level: 2,
+            colorByPoint: true
+        },
+        {
+            level: 3,
+            colorVariation: {
+                key: 'brightness',
+                to: -0.5
+            }
+        }, {
+            level: 4,
+            colorVariation: {
+                key: 'brightness',
+                to: 0.5
+            }
+        }]
+
+    }],
+
+    tooltip: {
+        headerFormat: '',
+        pointFormat: 'The population of <b>{point.name}</b> is <b>{point.value}</b>'
+    }
+});
+
+
+
+
+
+
+
+
+
+Highcharts.chart('container', {
+
+    chart: {
+        type: 'boxplot'
+    },
+
+    title: {
+        text: 'Highcharts Box Plot Example'
+    },
+
+    legend: {
+        enabled: false
+    },
+
+    xAxis: {
+        categories: <%= @columns %>,
+        title: {
+            text: 'enter text here.'
+        }
+    },
+
+    yAxis: {
+        title: {
+            text: 'Observations'
+        },
+        plotLines: [{
+            value: 932,
+            color: 'red',
+            width: 1,
+            label: {
+                text: 'Theoretical mean: <%= "enter a value here" %>',
+                align: 'center',
+                style: {
+                    color: 'gray'
+                }
+            }
+        }]
+    },
+
+    series: [{
+        name: 'Enter text here...',
+        data: <%= @query.hcbp_data_arrays(@query.hcbp_raw_arrays(@rows, @columns)) %>,
+        tooltip: {
+            headerFormat: '<em>Experiment No {point.key}</em><br/>'
+        }
+    }]
+
+});
+
+
+
+
+
+
+
+
+Highcharts.chart('container', {
+
+    chart: {
+        type: 'bubble',
+        plotBorderWidth: 1,
+        zoomType: 'xy'
+    },
+
+    legend: {
+        enabled: false
+    },
+
+    xAxis: {
+        gridLineWidth: 1,
+        title: {
+            text: <%= @columns[1] %>
+        },
+        plotLines: [{
+            color: 'black',
+            width: 2,
+            value: <%= @query.hcbc_x_axis(@query.hcbp_raw_arrays(@rows, @columns)) %>,
+            label: {
+                rotation: 0,
+                y: 15,
+                style: {
+                    fontStyle: 'italic'
+                }
+            },
+            zIndex: 3
+        }]
+    },
+
+    yAxis: {
+        startOnTick: false,
+        endOnTick: false,
+        title: {
+            text: <%= @columns[2] %>
+        },
+        maxPadding: 0.2,
+        plotLines: [{
+            color: 'black',
+            width: 2,
+            value: <%= @query.hcbc_y_axis(@query.hcbp_raw_arrays(@rows, @columns)) %>,
+            label: {
+                align: 'right',
+                style: {
+                    fontStyle: 'italic'
+                }
+            },
+            zIndex: 3
+        }]
+    },
+
+    tooltip: {
+        useHTML: true,
+        headerFormat: '<table>',
+        pointFormat: '<tr><th colspan="2"><h3>{point.title}</h3></th></tr>' +
+            '<tr><th><%= @columns[1] %>:</th><td>{point.x}g</td></tr>' +
+            '<tr><th><%= @columns[2] %></th><td>{point.y}g</td></tr>' +
+            '<tr><th><%= @columns[3] %></th><td>{point.z}%</td></tr>',
+        footerFormat: '</table>',
+        followPointer: true
+    },
+
+    plotOptions: {
+        series: {
+            dataLabels: {
+                enabled: true,
+                format: '{point.name}'
+            }
+        }
+    },
+
+    series: [{
+        data: <%= @query.hcbc_data(@rows, @columns) %>
+    }]
+
+});
+
+

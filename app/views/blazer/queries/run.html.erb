@@ -17,7 +17,7 @@
   <% if @combo_error %>
     <div class="alert alert-info"><%= @combo_error %></div>
   <% else %>
-    <%= render partial: "combos" %>
+    <%= render partial: "linked_bubble" %>
   <% end %>
 <% else %>
   <!--
@@ -66,7 +66,7 @@
       <% chart_options.merge!(library: {tooltips: {intersect: false}}) %>
     <% elsif ["bar", "bar2"].include?(chart_type) %>
       <% p '=========> bar chart here' %>
-      <% chart_options.merge!(library: {tooltips: {intersect: false, axis: 'x'}}) %>
+      <% chart_options.merge!(min: 1, max: 5, steps: 6, library: {tooltips: {intersect: false, axis: 'x'}}) %>
     <% elsif chart_type != "pie" %>
       <% if column_types.size == 2 || @forecast %>
         <% chart_options.merge!(library: {tooltips: {intersect: false, axis: 'x'}}) %>

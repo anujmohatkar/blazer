@@ -1,0 +1,22 @@
+<br />
+<br />
+<br />
+<%= @columns %>
+<br />
+<%= @rows %>
+<br />
+<br />
+<br />
+<%= @query.hcbc_data(@rows, @columns) %>
+<br />
+<br />
+<br />
+<%= @query.hcbc_x_axis(@query.hcbp_raw_arrays(@rows, @columns)) %>
+<br />
+<br />
+<br />
+<%= @query.hcbc_y_axis(@query.hcbp_raw_arrays(@rows, @columns)) %>
+<br />
+<br />
+<br />
+<%= @query.hcbp_raw_arrays(@rows, @columns) %>

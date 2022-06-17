@@ -1,0 +1,43 @@
+<br />
+<br />
+<br />
+<%= @columns %>
+<br />
+<%= @rows %>
+<br />
+<br />
+<br />
+<%= @query.hcbc_data(@rows, @columns) %>
+<br />
+<br />
+<br />
+<%= @query.hcbc_x_axis(@query.hcbp_raw_arrays(@rows, @columns)) %>
+<br />
+<br />
+<br />
+<%= @query.hcbc_y_axis(@query.hcbp_raw_arrays(@rows, @columns)) %>
+<br />
+<br />
+<br />
+<%= @query.hcbp_raw_arrays(@rows, @columns) %>
+<br />
+<br />
+<br />
+<%= @query.lbh_test(@columns) %>
+<br />
+<br />
+<br />
+<%= @query.lbh_raw_data(@rows, @columns) %>
+<br />
+<br />
+<br />
+<%= @query.lbh_data(@rows, @columns) %>
+<br />
+<br />
+<br />
+<%= @query.lbh_x_axis(@query.lbh_raw_data(@rows, @columns)) %>
+<br />
+<br />
+<br />
+<%= @query.lbh_y_axis(@query.lbh_raw_data(@rows, @columns)) %>
+https://jsfiddle.net/nzwpm63c/4/
