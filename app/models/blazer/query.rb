@@ -325,7 +325,10 @@ module Blazer
       @hcbc_x_axis = ((rows[2].sort.last + rows[2].sort.first) / 2).round(2)
     end
 
+
+    ######################
     # methods for linked bubble heatmap (lbh)
+    ######################
 
     # method to test if the query has enough columns to plot linked bubble heatmap
     def lbh_test(columns)
@@ -340,41 +343,47 @@ module Blazer
     def lbh_data(rows, columns)
       lbh_array = [] # array to store data for plotting linked bubble heatmap
 
-      # code to get data for plotting the bubbles
-      hcbc_array = []
+      # code to get data for plotting the bubbles b_array means bubble array to store the hash in the array.
+      # the individual hash here plots a bubble on the chart.
+      b_array = []
       rows.each.with_index do |row, i|
         j = 1
         ((columns.length - 1) / 2).times do
-          hcbc_item = {
-            'x' => row[j].to_f,
-            'y' => row[j+1].to_f,
-            'name' => row[0][0..1].to_s,
-            "#{columns[0]}" => row[0].to_s
-          }
-          j += 2
-          hcbc_array << hcbc_item
+          if row[j] != nil && row[j+1] != nil
+            hcbc_item = {
+              'x' => row[j].to_f,
+              'y' => row[j+1].to_f,
+              'name' => row[0][0..1].to_s,
+              "#{columns[0]}" => row[0].to_s
+            }
+            j += 2
+            b_array << hcbc_item
+          end
         end
       end
       bubble_hash = {}
-      bubble_hash[:data] = hcbc_array
+      bubble_hash[:data] = b_array
       lbh_array << bubble_hash
 
       # code to get data for plotting the lines connecting the bubbles
+      # each hash makes a line on the chart.
       rows.each.with_index do |row , i|
         lbh_hash_item = Hash.new
         j = 1
-        line_arraw = []
+        line_array = []
         ((columns.length - 1) / 2).times do
-          lbh_item = {
-            'x' => rows[i][j].to_f,
-            'y' => rows[i][(j + 1)].to_f  
-          }
+          if row[j] != nil && row[j+1] != nil
+            lbh_item = {
+              'x' => rows[i][j].to_f,
+              'y' => rows[i][(j + 1)].to_f  
+            }
 
-          line_arraw << lbh_item
-          j += 2
+            line_array << lbh_item
+            j += 2
+          end
         end
         lbh_hash_item[:type] = 'line'
-        lbh_hash_item['data'] = line_arraw
+        lbh_hash_item['data'] = line_array
         lbh_array << lbh_hash_item
 
       end
@@ -393,14 +402,12 @@ module Blazer
         end
         index += 2
       end
-      p 'here are all the x-axis values'
-      p x_axis_all_values.min
       @lbh_x_axis = ((x_axis_all_values.sort.last + x_axis_all_values.sort.first) / 2).round(2)
     end
 
     # method of linked bubble heatmap for y-axis reference line value
     def lbh_y_axis(rows)
-      #@lbh_y_axis = ((rows[2].sort.last + rows[2].sort.first) / 2).round(2)
+      #middle value = ((max value in array + min value in the array) / 2).round(2)
       y_axis_all_values = []
       index = 1
       (rows.length / 2).times do
@@ -412,14 +419,35 @@ module Blazer
       @lbh_y_axis = ((y_axis_all_values.sort.last + y_axis_all_values.sort.first) / 2).round(2)
     end
 
+    # method to convert the raw arrays into arrays of each column. into an array of arrays.
+    # only the numeric arrays, no string, so thats why it starts at index = 1
     def lbh_raw_data(rows, columns)
-      x = 1
+      index = 1
       array = []
       (columns.length-1).times do
-        array << rows.map { |row| row[x].to_f }
-        x += 1
+        array << rows.map { |row| row[index].to_f }
+        index += 1
       end
       @lbh_raw_data = array
     end
+
+    def email_list(rows)
+      array = []
+      rows.each do |row|
+        array << row.all
+      end
+      @email_list = array
+    end
+    # 
+    # methods to convert the query result to an array
+
+    def email_list(rows)
+      email_list = []
+      rows.each do |row|
+        email_list << row[0]
+      end
+      @email_list = email_list
+    end
+    
   end
 end

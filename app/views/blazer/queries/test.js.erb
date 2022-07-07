@@ -1,96 +1,85 @@
-Highcharts.chart('container', {
+<% if @query.lbh_test(@columns) == true %>
+    Highcharts.chart('container', {
 
-    chart: {
-        type: 'bubble',
-        plotBorderWidth: 1,
-        zoomType: 'xy',
-        plotBackgroundImage: 'https://i.ibb.co/RBsvr2n/Screenshot-272.png'
-    },
-
-    legend: {
-        enabled: false
-    },
-
-    title: {
-        text: 'Sugar and fat intake per country'
-    },
-
-    subtitle: {
-        text: 'Source: <a href="http://www.euromonitor.com/">Euromonitor</a> and <a href="https://data.oecd.org/">OECD</a>'
-    },
-
-    accessibility: {
-        point: {
-            valueDescriptionFormat: '{index}. {point.name}, fat: {point.x}g, sugar: {point.y}g, obesity: {point.z}%.'
-        }
-    },
-
-    xAxis: {
-        gridLineWidth: 1,
-        title: {
-            text: <%= @columns[1] %>
+        chart: {
+            type: 'bubble',
+            plotBorderWidth: 1,
+            zoomType: 'xy',
+            plotBackgroundImage: 'https://i.ibb.co/RBsvr2n/Screenshot-272.png'
         },
-        plotLines: [{
-            color: 'black',
-            width: 2,
-            value: <%= @query.hcbc_x_axis(@query.hcbp_raw_arrays(@rows, @columns)) %>,
-            label: {
-                rotation: 0,
-                y: 15,
-                style: {
-                    fontStyle: 'italic'
-                }
-            },
-            zIndex: 3
-        }]
-    },
 
-    yAxis: {
-        startOnTick: false,
-        endOnTick: false,
-        title: {
-            text: <%= @columns[2] %>
+        legend: {
+            enabled: false
         },
-        maxPadding: 0.2,
-        plotLines: [{
-            color: 'black',
-            width: 2,
-            value: <%= @query.hcbc_y_axis(@query.hcbp_raw_arrays(@rows, @columns)) %>,
-            label: {
-                align: 'right',
-                style: {
-                    fontStyle: 'italic'
-                }
-            },
-            zIndex: 3
-        }]
-    },
 
-    tooltip: {
-        useHTML: true,
-        headerFormat: '<table>',
-        pointFormat: '<tr><th colspan="2"><h3>{point.title}</h3></th></tr>' +
-            '<tr><th><%= @columns[1] %>:</th><td>{point.x}g</td></tr>' +
-            '<tr><th><%= @columns[2] %></th><td>{point.y}g</td></tr>' +
-            '<tr><th><%= @columns[3] %></th><td>{point.z}%</td></tr>',
-        footerFormat: '</table>',
-        followPointer: true
-    },
-
-    plotOptions: {
-        series: {
-            dataLabels: {
-                enabled: true,
-                format: '{point.name}'
+        accessibility: {
+            point: {
+                valueDescriptionFormat: '{index}. {point.name}, fat: {point.x}g, sugar: {point.y}g, obesity: {point.z}%.'
             }
         },
-        bubble: {
-            maxSize: 25
-        }
-    },
 
-    series: <%= @query.lbh_data(@rows, @columns) %>
-});
+        xAxis: {
+            gridLineWidth: 1,
+            plotLines: [{
+                color: 'black',
+                width: 2,
+                value: <%= @query.lbh_x_axis(@query.lbh_raw_data(@rows, @columns)) %>,
+                label: {
+                    rotation: 0,
+                    y: 15,
+                    style: {
+                        fontStyle: 'italic'
+                    }
+                },
+                zIndex: 3
+            }]
+        },
+
+        yAxis: {
+            startOnTick: false,
+            endOnTick: false,
+            maxPadding: 0.2,
+            plotLines: [{
+                color: 'black',
+                width: 2,
+                value: <%= @query.lbh_y_axis(@query.lbh_raw_data(@rows, @columns)) %>,
+                label: {
+                    align: 'right',
+                    style: {
+                        fontStyle: 'italic'
+                    }
+                },
+                zIndex: 3
+            }]
+        },
+
+        tooltip: {
+            useHTML: true,
+            headerFormat: '<table>',
+            pointFormat: '<tr><th colspan="2"><h3>{point.title}</h3></th></tr>' +
+                '<tr><th><%= @columns[1] %>:</th><td>{point.x}g</td></tr>' +
+                '<tr><th><%= @columns[2] %></th><td>{point.y}g</td></tr>',
+            footerFormat: '</table>',
+            followPointer: true
+        },
+
+        plotOptions: {
+            series: {
+                dataLabels: {
+                    enabled: true,
+                    format: '{point.name}'
+                }
+            },
+            bubble: {
+                maxSize: 25
+            }
+        },
+
+        series: <%= @query.lbh_data(@rows, @columns) %>
+    });
+<% else %>
+ console.log('Data Insufficient to Generate Chart');
+<% end %>
 
 
 
