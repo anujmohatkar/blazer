@@ -23,25 +23,53 @@
 <br />
 <br />
 <br />
-<%#= @query.lbh_test(@columns) %>
+<% p "================================================== main app" %>
+<%= puts @query.inspect %>
+<% p "================================================== view page" %>
 <br />
 <br />
 <br />
-<%#= @query.lbh_raw_data(@rows, @columns) %>
+<%= @query.lbh_raw_data(@rows, @columns) %>
 <br />
 <br />
 <br />
-<%#= @query.lbh_data(@rows, @columns) %>
+<%= @query.lbh_data(@rows, @columns) %>
 <br />
 <br />
 <br />
-<%#= @query.lbh_x_axis(@query.lbh_raw_data(@rows, @columns)) %>
+<%= @query.lbh_x_axis(@query.lbh_raw_data(@rows, @columns)) %>
 <br />
 <br />
 <br />
-<%#= @query.lbh_y_axis(@query.lbh_raw_data(@rows, @columns)) %>
+<%= @query.lbh_y_axis(@query.lbh_raw_data(@rows, @columns)) %>
 https://jsfiddle.net/nzwpm63c/4/
 <br />
 <br />
 <br />
-<%= @query.email_list(@rows) %>
+<%#= @query.email_list(@rows) %>
+<% p "================================================== api response" %>
+<% api_result = @query.api_call(@query, @rows, @columns) %>
+<% if api_result[0] == 'image' %>
+    <img src=<%= api_result[1] %> class="img-fluid" alt="Responsive image">
+<% elsif api_result[0] == 'table' %>
+    <%= api_result[1] %> <%= api_result[2] %>
+<% elsif api_result[0] == 'chart' %>
+    <%= api_result[1] %> <%= api_result[2] %>
+<% elsif api_result[0] == 'error' %>
+    <%= api_result[1] %>
+<% end %>
+<br />
+<br />
+<br />
+<%#= @query.api_raw_response(@query.api_call(@query.api_endpoint, @rows, @columns)) %>
+<br />
+<br />
+<br />
+<%# if @query.api_image(@query.api_call(@query.api_endpoint, @rows, @columns)) != false %>
+    <#img src=<%#= @query.api_image(@query.api_call(@query.api_endpoint, @rows, @columns)) %> class="img-fluid" alt="Responsive image">
+<%# end %>
+
+<%= @query.description %>
+<%= @query.api_endpoint %>
+<%= @query.api_auth_key.empty? %>
+<% p "================================================== api response" %>

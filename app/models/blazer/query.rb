@@ -1,3 +1,4 @@
+require 'httparty'
 module Blazer
   class Query < Record
     belongs_to :creator, optional: true, class_name: Blazer.user_class.to_s if Blazer.user_class
@@ -300,20 +301,29 @@ module Blazer
     # bubble chart methods
     # hcbc = highcharts bubble chart
     # bubble chart method to get data for plotting bubble chart
-    def hcbc_data(rows, columns)
-      hcbc_array = []
-      rows.each do |row|
-        hcbc_item = {
-          'x' => row[1].to_f,
-          'y' => row[2].to_f,
-          'z' => row[3].to_f,
-          'name' => row[0][0..1].to_s,
-          "#{columns[0]}" => row[0].to_s
-        }
-        hcbc_array << hcbc_item
-      end
-      @hcbc_data = hcbc_array.to_json
-    end
+    # sample data : [91, "Novelty Measure", 3.0, 60.0, "column_0"], [91, "Novelty Measure", 2.5, 50.0, "column_1"]
+    #def bubble_data(rows, columns)
+    #  bubble_array = []
+    #  x_cord_index = 0
+    #  y_cord_index = 1
+    #  if rows.size.even? == true
+    #    (rows.length /2).times do
+    #      bubble_item = {
+    #        'x' => row[x_cord_index][2].to_f,
+    #        'y' => row[y_cord_index][2].to_f,
+    #        'z' => 0,
+    #        'name' => row[0][0][0..1].to_s,
+    #        "#{columns[1][1]}" => row[0][1].to_s
+    #      }
+    #      bubble_array << bubble_item
+    #      x_cord_index += 2
+    #      y_cord_index += 2
+    #    end
+    #    @bubble_data = bubble_array.to_json
+    #  else
+    #    @bubble_data = "Invalid format of inputs"
+    #  end
+    #end
 
     # bubble chart method for x-axis reference line value
     def hcbc_x_axis(rows)
@@ -324,6 +334,8 @@ module Blazer
     def hcbc_y_axis(rows)
       @hcbc_x_axis = ((rows[2].sort.last + rows[2].sort.first) / 2).round(2)
     end
+
+
 
 
     ######################
@@ -449,5 +461,46 @@ module Blazer
       @email_list = email_list
     end
     
+    # method to make an api request 
+    def api_call(query, rows, columns)
+      if query.api_auth_key.empty? == true 
+        response = HTTParty.post(query.api_endpoint, body: {"input": rows.to_json, "output": columns.to_json, "product": {"input": rows.to_json,"output": columns.to_json}})
+      else
+        response = HTTParty.post(query.api_endpoint, body: {"input": rows.to_json, "output": columns.to_json, "product": {"input": rows.to_json,"output": columns.to_json}}, headers: {"Authorization" => query.api_auth_key})
+      end
+      api_response = JSON.parse(response.body)
+      if api_response["result"] == "error"
+        p 'error on result response'
+        @api_call = [ 'error', "Error: #{api_response["error"]}"]
+
+      elsif api_response["result"] == 'image'
+        p 'image_url'
+        @api_call = [ 'image', api_response["image_url"]]
+
+      elsif api_response["result"] == 'table'
+        p 'image_url nil'
+        @api_call = ['table', api_response["columns"], api_response["rows"]]
+      elsif api_response['result'] == 'chart'
+        p 'chart'
+        @api_call = ['chart', api_response["chart_type"], api_response["chart_data"]]
+      end
+    end
+
+    def api_raw_response(response)
+      if response["rows"].nil? || response["rows"].empty?
+        @api_call_2 = "No output"
+      else
+        @api_call_2 = response["rows"]
+      end
+    end
+
+    def api_image(response)
+      if response["image_url"].nil? || response["image_url"].empty?
+        @api_image = false
+      else
+        @api_image = response["image_url"]
+      end
+    end
+
   end
 end

@@ -53,6 +53,12 @@
     <div class="alert alert-info"><%= @combo_error %></div>
   <% end %>
   <% if @rows.any? %>
+    <% p "==================================================" %>
+    <% p @columns %>
+    <% p "================================================== main app" %>
+    <%# p @query.api_request(Api.last[:api]) %>
+    <% p "==================================================" %>
+    <% p "==================================================" %>
     <% values = @rows.first %>
     <% chart_id = SecureRandom.hex %>
     <% column_types = @result.column_types %>

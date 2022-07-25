@@ -346,7 +346,7 @@ module Blazer
       end
 
       def query_params
-        params.require(:query).permit(:name, :description, :statement, :data_source)
+        params.require(:query).permit(:name, :description, :statement, :data_source, :api_endpoint, :api_auth_key)
       end
 
       def blazer_params
