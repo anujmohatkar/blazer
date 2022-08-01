@@ -403,6 +403,55 @@ module Blazer
       @lbh_data = lbh_array.to_json
     end
 
+    # Methods for line bubble heatmap data (new query format)
+    # input ([[133, "Chamber Italian", 117, 0.1499e2], [384, "Grosse Wonderful", 49, 0.1999e2], [8, "Airport Pollock", 54, 0.1599e2], [98, "Bright Encounters", 73, 0.1299e2]])
+    def heatmap_data(rows) # pass @rows and @colummns here.
+      heatmap_array = []
+
+      # code to get data for plotting the bubbles b_array means bubble array to store the hash in the array.
+      # the individual hash here plots a bubble on the chart.
+      b_array = []
+      rows.each.with_index do |row, i|
+        b_array << {
+          'x' => rows[i][2].to_f, # x-coordinate of bubble
+          'y' => rows[i][3].to_f, # y-coordinate of bubble
+          'z' => 1, # the size of the bubble, keeping it 1 , felt 0 will will be just nothing there, can be changed
+          'name' => rows[i][0].to_s, # name that will be rendered on the bubble, here, acc. to query, it will be id.
+          'category' => rows[i][1].to_s
+        }
+      end
+      bubble_hash = {}
+      bubble_hash[:data] = b_array
+      heatmap_array << bubble_hash
+      # the above bubble hash will contain everything to render all the bubbles
+
+
+      # code to get data for plotting the lines connecting the bubbles
+      # each hash makes a line on the chart.
+      line_row_index = 0
+      (rows.length / 2).times do |i| # since 2 rows make 2 bubbles and make one line
+        line_hash_item = Hash.new
+        line_array = [] # the array that will contain the hashes of individual point of the line.
+          line_item = {
+            'x' => rows[line_row_index][2].to_f,
+            'y' => rows[line_row_index][3].to_f
+          }
+          line_array << line_item
+          line_item_2 = {
+            'x' => rows[line_row_index + 1][2].to_f,
+            'y' => rows[line_row_index + 1][3].to_f
+          }
+          line_array << line_item_2
+          line_hash_item[:type] = 'line' # to specify that this is a line that we want to plot , we didn't do this with bubble because the chart type in the initial config is bubble.
+          line_hash_item['data'] = line_array
+          heatmap_array << line_hash_item
+          line_row_index += 2 # increasing index of row by 2 because one line requires 2 rows .
+        end
+      # converting the array to json format so it can be used in highchart.
+      @heatmap_data = heatmap_array.to_json 
+    end
+
+
     # method of linked bubble heatmap for x-axis reference line value
     def lbh_x_axis(rows)
       #middle value = ((max value in array + min value in the array) / 2).round(2)
@@ -464,25 +513,27 @@ module Blazer
     # method to make an api request 
     def api_call(query, rows, columns)
       if query.api_auth_key.empty? == true 
-        response = HTTParty.post(query.api_endpoint, body: {"input": rows.to_json, "output": columns.to_json, "product": {"input": rows.to_json,"output": columns.to_json}})
+        response = HTTParty.post(query.api_endpoint, body: {"input": rows.to_json, "output": columns.to_json, "product": {"input": rows.to_json,"output": columns.to_json}}) # Please modify the api json body to your needs
       else
-        response = HTTParty.post(query.api_endpoint, body: {"input": rows.to_json, "output": columns.to_json, "product": {"input": rows.to_json,"output": columns.to_json}}, headers: {"Authorization" => query.api_auth_key})
+        response = HTTParty.post(query.api_endpoint, body: {"input": rows.to_json, "output": columns.to_json, "product": {"input": rows.to_json,"output": columns.to_json}}, headers: {"Authorization" => query.api_auth_key}) # Please modify the api json body to your needs
       end
+
       api_response = JSON.parse(response.body)
-      if api_response["result"] == "error"
+      # below is the if-else loop to check the response from the api and its type
+      if api_response["result"] == "error" # for error response
         p 'error on result response'
         @api_call = [ 'error', "Error: #{api_response["error"]}"]
 
-      elsif api_response["result"] == 'image'
+      elsif api_response["result"] == 'image' # for image response
         p 'image_url'
         @api_call = [ 'image', api_response["image_url"]]
 
-      elsif api_response["result"] == 'table'
+      elsif api_response["result"] == 'table' # for table response
         p 'image_url nil'
         @api_call = ['table', api_response["columns"], api_response["rows"]]
-      elsif api_response['result'] == 'chart'
+      elsif api_response['result'] == 'chart' # for chart response
         p 'chart'
-        @api_call = ['chart', api_response["chart_type"], api_response["chart_data"]]
+        @api_call = ['chart', api_response["chart_type"], api_response["rows"], api_response["columns"]]
       end
     end
 
@@ -501,6 +552,65 @@ module Blazer
         @api_image = response["image_url"]
       end
     end
+    
+    # Method for gauge data
+    # input will be @rows array 
+    # @rows=[[3.1, 62.0]]
+    def guage_value(rows)
+      @guage_value = [rows[0][1]]
+    end
+    # output here should be: [65.0]
 
+    # Method for world map ranges chart
+    def world_map_data(rows)
+      world_map_array = []
+      rows.each do |row|
+        world_map_array << {
+          'code' => row[0],
+          'name' => row[1],
+          'value' => row[2]
+        }
+      end
+      @world_map_data = world_map_array.to_json
+    end
+
+    def world_map_range(rows)
+      world_map_range = []
+      rows.each do |row|
+        world_map_range << row[2]
+      end
+      @world_map_range = world_map_range
+    end
+
+    def scatter_data(rows)
+      scatter_array = Array.new
+      scatter_cat1 = Hash.new
+      cat1_data = Array.new
+      cat1_index = 0
+      (rows.length / 2).times do
+        cat1_data <<  [rows[cat1_index][1].to_f, rows[cat1_index][2].to_f]
+        cat1_index += 2
+      end
+      scatter_cat1['name'] = 'category 1'
+      scatter_cat1['color'] = 'rgba(223, 83, 83, .5)'
+      scatter_cat1['data'] = cat1_data
+      scatter_array << scatter_cat1
+
+      scatter_cat2 = Hash.new
+      cat2_data = Array.new
+      cat2_index = 1
+      (rows.length / 2).times do
+        cat2_data <<  [rows[cat2_index][1].to_f, rows[cat2_index][2].to_f]
+        p 'runned'
+        cat2_index += 2
+      end
+      scatter_cat2['name'] = 'category 2'
+      scatter_cat2['color'] = 'rgba(119, 152, 191, .5)'
+      scatter_cat2['data'] = cat2_data
+      scatter_array << scatter_cat2
+
+      @scatter_data = scatter_array.to_json
+    end
+    
   end
 end
