@@ -7,7 +7,7 @@ https://jsfiddle.net/5v896ake/3/
 <br />
 
 <%= @query.guage_value(@rows) %>
-
+<!-- this code is for solid guage -->
 <script>
 var gaugeOptions = {
     chart: {
@@ -98,4 +98,28 @@ var chartSpeed = Highcharts.chart('container-speed', Highcharts.merge(gaugeOptio
     }]
 
 }));
+</script>
+<!-- the following code is for nps chart -->
+<% payload = {
+      'min'=> -100,
+      'max'=> 100,
+      'ranges'=> [{
+        'from'=> -100,
+        'to'=> -10,
+        'color'=> '#D9534F'
+      }, {
+        'from'=> -10,
+        'to'=> 0,
+        'color'=> '#F0AD4E'
+      }, {
+        'from'=> 0,
+        'to'=> 100,
+        'color'=> '#5CB85C'
+      }]
+    }.to_json %>
 
+    <%=  payload %>
+    <br />
+    <br />
+    <br />
+    <%= @query.nps_range(payload) %>

@@ -611,6 +611,98 @@ module Blazer
 
       @scatter_data = scatter_array.to_json
     end
-    
+
+
+
+    def scatter_range(rows)
+      
+    end
+
+    # Method for NPS chart ranges
+    def nps_range(payload)
+      nps_hash = Hash.new
+      payload_data = JSON.parse(payload)
+      p payload_data['ranges']
+      nps_range = []
+      payload_data['ranges'].each do |range|
+        range_hash = {
+          'from' => range['from'],
+          'to' => range['to'],
+          'thickness' => '50%',
+          'color' => range['color']
+        }
+        nps_range << range_hash
+      end
+      nps_hash['min'] = payload_data['min']
+      nps_hash['max'] = payload_data['max']
+      nps_hash['plotBands'] = nps_range
+      nps_hash['tickWidth'] = 0
+      nps_hash['minorTickWidth'] = 0
+      nps_hash['labels'] = { 'y' => 10}
+      @nps_range = nps_hash.to_json
+    end
+
+    # Method to divide the array into ranges equally
+    # [{
+    #   to: 3
+    #   }, {
+    #       from: 3,
+    #       to: 10
+    #   }, {
+    #       from: 10,
+    #       to: 30
+    #   }, {
+    #       from: 30,
+    #       to: 100
+    #   }, {
+    #       from: 100,
+    #       to: 300
+    #   }, {
+    #       from: 300,
+    #       to: 1000
+    #   }, {
+    #       from: 1000
+    #   }]
+    def world_map_ranges(rows, range_amount)
+      data = []
+      rows.each do |row|
+        data << row[2].to_i
+      end
+      data.sort!
+      p data
+      index = 0
+      ranges = Array.new
+      data_length = data.length
+      data_difference = data_length/range_amount
+      (range_amount - 1).times do |i|
+        if index == 0
+          range_start = {
+            'to' => data_difference
+          }
+          p range_start
+          ranges << range_start
+          index += data_difference
+        else 
+          if data_length > (index + data_difference)
+            range = {
+              'from' => index,
+              'to' => (index + data_difference)
+            }
+            p range
+            ranges << range
+            index += data_difference
+            p "range: #{index}"   
+          end
+        end
+      end
+      range = {
+        'from' => index
+      }
+      ranges << range
+      p index
+      @world_map_ranges = ranges.to_json
+    end
+
+
   end
 end

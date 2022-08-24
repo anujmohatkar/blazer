@@ -1,4 +1,3 @@
-
 <table class="table results-table">
     <thead>
         <tr>
@@ -6,42 +5,29 @@
             <% type = @column_types[i] %>
             <th data-sort="<%= type %>">
             <div>
-                <% p key %> 
+                <%# p key %> 
                 <%= key %>
             </div>
             </th>
         <% end %>
         </tr>
     </thead>
-        <tbody>
-            <% @rows.each do |row| %>
-            <tr>
-                <% row.each_with_index do |v, i| %>
-                <% k = @columns[i] %>
-
-                <%# print k %>
-                <%# p v %>
-                <td>
-                    <% if v.is_a?(Time) %>
-                        <% v = blazer_time_value(@data_source, k, v) %>
+    <tbody>
+        <% @rows.each do |row| %>
+        <tr>
+            <% row.each_with_index do |v, i| %>
+            <% k = @columns[i] %>
+            <td>
+                <% unless v.nil? %>
+                    <% if v.is_a?(String) && v == "" %>
+                        <div class="text-muted">empty string</div>
+                    <% else %>
+                        <%= v %>
                     <% end %>
-
-                    <% unless v.nil? %>
-                        <% if v.is_a?(String) && v == "" %>
-                            <div class="text-muted">empty string</div>
-                        <% elsif @linked_columns[k] %>
-                            <%= link_to blazer_format_value(k, v), @linked_columns[k].gsub("{value}", u(v.to_s)), target: "_blank" %>
-                        <% else %>
-                            <%= blazer_format_value(k, v) %>
-                        <% end %>
-                    <% end %>
-
-                    <% if v2 = (@boom[k] || {})[v.nil? ? v : v.to_s] %>
-                    <div class="text-muted"><%= v2 %></div>
-                    <% end %>
-                </td>
                 <% end %>
-            </tr>
+            </td>
             <% end %>
-        </tbody>
-        </table>
+        </tr>
+        <% end %>
+    </tbody>
+</table>
