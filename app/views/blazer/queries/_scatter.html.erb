@@ -1,2 +1,11 @@
-<%= @query.scatter_data(@rows) %>
+
+<%= @rows %>
+<%= @columns %>
+<br />
+<br />
+<% if @query.column3_test(@rows) %>
+    <%= @query.scatter_data(@rows) %>
+<% else %>
+    error
+<% end %>
 https://jsfiddle.net/p7rz6mbg/

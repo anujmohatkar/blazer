@@ -55,6 +55,14 @@ module Blazer
     def hc_x_axis(rows)
       @hc_x_axis = rows.map { |r| r[0] }  
     end
+    
+    def combo_chart_test(rows)
+      if rows[0].length > 2 && rows[0][1..-1].all? { |e| e.is_a? Numeric } == true
+        return true
+      else
+        return false
+      end
+    end
 
     def hc_y_axis(columns)
       y_axis = Array.new
@@ -230,6 +238,17 @@ module Blazer
       @hc_y_axis_data = hcyl.to_json
     end
 
+
+
+    # box plot test methods
+    def box_test(rows, modified_rows)
+      if modified_rows[0].length >= 5 && rows[0].all? { |e| e.is_a? Numeric } == true
+        return true
+      else
+        return false
+      end 
+    end
+    
     # box plot methods
     def hcbp_raw_arrays(rows, columns)
       hcbp = []
@@ -560,7 +579,13 @@ module Blazer
       @guage_value = [rows[0][1]]
     end
     # output here should be: [65.0]
-
+    def column3_test(rows)
+      if rows[0].length >= 3
+        return true
+      else
+        return false
+      end
+    end
     # Method for world map ranges chart
     def world_map_data(rows)
       world_map_array = []
@@ -703,6 +728,9 @@ module Blazer
       @world_map_ranges = ranges.to_json
     end
 
-
+    def podcasts(rows, columns)
+      parse = Blazer::Podcard.new(rows, columns)
+      @podcasts = parse.array
+    end
   end
 end

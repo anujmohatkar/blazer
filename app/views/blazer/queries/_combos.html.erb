@@ -11,7 +11,7 @@
         text: 'Combination chart'
       },
       xAxis: {
-        categories: <%= @query.hc_x_axis(@rows) %>
+        categories: <%= raw @query.hc_x_axis(@rows) %>
       },
       labels: {
         items: [{
@@ -27,7 +27,7 @@
         }]
       },
       
-      series: <%= @query.hc_y_axis_data(@rows, @columns) %>
+      series: <%= raw @query.hc_y_axis_data(@rows, @columns) %>
     });
   </script>
 <% else %>
