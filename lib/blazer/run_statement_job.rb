@@ -7,6 +7,8 @@ module Blazer
       begin
         ActiveRecord::Base.connection_pool.with_connection do
           Blazer::RunStatement.new.perform(data_source, statement, options)
+          p "RunStatementJob: #{data_source_id}, #{statement}, #{options}"
+          p "query ran by active record"
         end
       rescue Exception => e
         Blazer::Result.new(data_source, [], [], "Unknown error", nil, false)

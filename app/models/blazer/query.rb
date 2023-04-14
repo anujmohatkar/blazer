@@ -321,7 +321,7 @@ module Blazer
     # hcbc = highcharts bubble chart
     # bubble chart method to get data for plotting bubble chart
     # sample data : [91, "Novelty Measure", 3.0, 60.0, "column_0"], [91, "Novelty Measure", 2.5, 50.0, "column_1"]
-    #def bubble_data(rows, columns)
+    # def bubble_data(rows, columns)
     #  bubble_array = []
     #  x_cord_index = 0
     #  y_cord_index = 1
@@ -342,7 +342,7 @@ module Blazer
     #  else
     #    @bubble_data = "Invalid format of inputs"
     #  end
-    #end
+    # end
 
     # bubble chart method for x-axis reference line value
     def hcbc_x_axis(rows)
@@ -475,13 +475,10 @@ module Blazer
     def lbh_x_axis(rows)
       #middle value = ((max value in array + min value in the array) / 2).round(2)
       x_axis_all_values = []
-      index = 0
-      (rows.length / 2).times do
-        rows[index].each do |x|
-          x_axis_all_values << x
-        end
-        index += 2
+      rows.each do |row|
+        x_axis_all_values << row[2].to_f
       end
+      p x_axis_all_values
       @lbh_x_axis = ((x_axis_all_values.sort.last + x_axis_all_values.sort.first) / 2).round(2)
     end
 
@@ -489,13 +486,10 @@ module Blazer
     def lbh_y_axis(rows)
       #middle value = ((max value in array + min value in the array) / 2).round(2)
       y_axis_all_values = []
-      index = 1
-      (rows.length / 2).times do
-        rows[index].each do |x|
-          y_axis_all_values << x
-        end
-        index += 2
+      rows.each do |row|
+        y_axis_all_values << row[3].to_f
       end
+      p y_axis_all_values
       @lbh_y_axis = ((y_axis_all_values.sort.last + y_axis_all_values.sort.first) / 2).round(2)
     end
 
@@ -728,9 +722,101 @@ module Blazer
       @world_map_ranges = ranges.to_json
     end
 
+    # Expected Query for podcast
+    # SELECT * FROM podcasts
+    # or
+    # SELECT title, summary, transcript, audio_url, prublished_time, audio_s3_location, audio_type, speaker_names, transcript_entities, source_feed FROM podcasts
     def podcasts(rows, columns)
       parse = Blazer::Podcard.new(rows, columns)
       @podcasts = parse.array
+    end
+
+    
+    def heatmap(rows)
+      # get all distinct values of 1st column
+      x_row = rows.map { |row| row[0] }.uniq
+      # get all distinct values of 2nd column
+      y_row = rows.map { |row| row[1] }.uniq
+      data = Array.new
+      # create a 2d array that takes the values of the 1st and 2nd column and the 3rd column as the value
+
+      x_row.each do |x|
+        y_row.each do |y|
+          
+          #binding.pry
+          f = rows.select { |row| row[0] == x && row[1] == y }
+          if f.length > 0
+            z = f[0][2]
+          else
+            z = 0
+          end
+          # puts index +1 for x and y 
+          if z != 0
+            data << [x_row.index(x), y_row.index(y), z]
+          end
+        end
+      end
+      @heatmap = data
+    end
+
+    def heatmap_x(rows)
+      rows.map { |row| row[0] }.uniq
+    end
+
+    def heatmap_y(rows)
+      rows.map { |row| row[1] }.uniq
+    end
+
+    def speedometer(rows)
+      @speedometer = rows[0][0]
+    end
+    #"circle", "square", "diamond", "triangle" and "triangle-down" are the possible types of markers.
+    def scatter2_data(rows)
+      marker = ['circle', 'square', 'diamond', 'triangle', 'triangle-down']
+      rows_types = rows.map { |row| row[0] }.uniq
+      marker_index = 0
+      if rows_types.length > 1 && rows_types.length < 6
+        data = Array.new
+        rows_types.each do |type|
+          type_hash = Hash.new
+          type_hash['name'] = type[0].to_s
+          type_hash['id'] = type[0].to_s
+          type_hash['marker'] = { 'symbol' => marker[marker_index] }
+          type_data = Array.new
+          rows.each do |row|
+            if row[0] == type
+              type_data << [row[1].to_f, row[2].to_f]
+            end
+          end
+          type_hash['data'] = type_data
+          data << type_hash
+          marker_index += 1
+        end
+      else
+        data = 'error: only 1 to 5 types of categories are allowed'
+      end
+      return data
+    end
+
+    # Given method converts the data into the format required by the highcharts network graph
+    # IT takes the first 2 columns of the data and converts it into an array of arrays, where each array is a connection between 2 nodes
+    # Example:
+    # [
+    #   ['A', 'B'],
+    #   ['A', 'C'],
+    #   ['B', 'D'],
+    #   ['C', 'D']
+    # ] 
+    def network_graph(rows)
+      data = Array.new
+      rows.each do |row|
+        data << [row[0], row[1]]
+      end
+      return data
+    end
+
+    def radar_data(rows)
+ 
     end
   end
 end

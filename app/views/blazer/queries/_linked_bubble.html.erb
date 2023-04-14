@@ -37,18 +37,19 @@
 <br />
 <br />
 <br />
-<%= @query.lbh_x_axis(@query.lbh_raw_data(@rows, @columns)) %>
+x axis: <%= @query.lbh_x_axis(@rows) %>
 <br />
 <br />
 <br />
-<%= @query.lbh_y_axis(@query.lbh_raw_data(@rows, @columns)) %>
+y axis: <%= @query.lbh_y_axis(@rows) %>
+<br />
 https://jsfiddle.net/nzwpm63c/4/
 <br />
 <br />
 <br />
 <% test = [[91, "Novelty Measure", 2.25, 45.0, "column_0"], [91, "Novelty Measure", 3.5, 70.0, "column_1"], [612, "Action / Focused", 2.75, 55.00000000000001, "column_0"], [612, "Action / Focused", 2.25, 45.0, "column_1"]] %>
 <%#= @query.email_list(@rows) %>
-<%= @query.heatmap_data(test)  %>
+<%= @query.heatmap_data(@rows)  %>
 <br />
 <br />
 <br />
@@ -64,3 +65,37 @@ https://jsfiddle.net/nzwpm63c/4/
 <%#= @query.api_endpoint %>
 <%#= @query.api_auth_key.empty? %>
 <% p "================================================== api response" %>
+
+<table class="table results-table">
+    <thead>
+        <tr>
+        <% @columns.each_with_index do |key, i| %>
+            <% type = @column_types[i] %>
+            <th data-sort="<%= type %>">
+            <div>
+                <%# p key %> 
+                <%= key %>
+            </div>
+            </th>
+        <% end %>
+        </tr>
+    </thead>
+    <tbody>
+        <% @rows.each do |row| %>
+        <tr>
+            <% row.each_with_index do |v, i| %>
+            <% k = @columns[i] %>
+            <td>
+                <% unless v.nil? %>
+                    <% if v.is_a?(String) && v == "" %>
+                        <div class="text-muted">empty string</div>
+                    <% else %>
+                        <%= v %>
+                    <% end %>
+                <% end %>
+            </td>
+            <% end %>
+        </tr>
+        <% end %>
+    </tbody>
+</table>

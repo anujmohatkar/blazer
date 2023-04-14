@@ -45,7 +45,7 @@ module Blazer
         @query.statement ||= "SELECT * FROM #{upload.table_name} LIMIT 10"
       end
     end
-
+  
     def create
       @query = Blazer::Query.new(query_params)
       @query.creator = blazer_user if @query.respond_to?(:creator)
@@ -99,17 +99,18 @@ module Blazer
 
       run_cohort_analysis if @cohort_analysis
       #run_combo_analysis if @combo_analysis
-
+      p '--------------------------------------------------- def run'
       # ensure viewable
       if !(@query || Query.new(data_source: @data_source.id)).viewable?(blazer_user)
         render_forbidden
       elsif @run_id
         @timestamp = blazer_params[:timestamp].to_i
-
+        p @run_id
         @result = @data_source.run_results(@run_id)
         @success = !@result.nil?
 
         if @success
+          p '---------------------------------------------------'
           @data_source.delete_results(@run_id)
           @columns = @result.columns
           @rows = @result.rows
@@ -130,7 +131,9 @@ module Blazer
         end
       elsif @success
         @run_id = blazer_run_id
-
+        p '--------------------------------------------------- def run 2 else'
+        p @run_id
+        p @success
         options = {user: blazer_user, query: @query, refresh_cache: params[:check], run_id: @run_id, async: Blazer.async}
         if Blazer.async && request.format.symbol != :csv
           Blazer::RunStatementJob.perform_later(@data_source.id, @statement, options)
@@ -140,8 +143,10 @@ module Blazer
             @result = @data_source.run_results(@run_id)
             break if @result || Time.now - wait_start > 3
           end
+          p 'async if condition'
         else
           @result = Blazer::RunStatement.new.perform(@data_source, @statement, options)
+          p 'async else condition'
         end
 
         if @result
